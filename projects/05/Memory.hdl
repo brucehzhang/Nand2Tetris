@@ -10,14 +10,26 @@
  * to the value of the in input.
  * Address space rules:
  * Only the upper 16K + 8K + 1 words of the memory are used.
- * Access to address 0 to 16383 (0x0000 to 0x3FFF) results in accessing the RAM;
+ * Access to address 0 to 16383 (0x0000 to 0x3FFF) results in accessing the RAM; 
  * Access to address 16384 to 24575 (0x4000 to 0x5FFF) results in accessing the Screen memory map;
  * Access to address 24576 (0x6000) results in accessing the Keyboard memory map.
+ *
+ * 0     = 000000000000000
+ * 16383 = 011111111111111
+ * 16384 = 100000000000000
+ * 24575 = 101111111111111
+ * 24576 = 110000000000000
  */ 
 CHIP Memory {
     IN in[16], load, address[15];
     OUT out[16];
 
     PARTS:
-    //// Replace this comment with your code.
+    DMux(in=load, sel=address[14], a=loadRam, b=loadScreenKbd);
+    DMux(in=loadScreenKbd, sel=address[13], a=loadScreen, b=loadKbd);
+    RAM16K(in=in, load=loadRam, address=address[0..13], out=ramOut);
+    Screen(in=in, load=loadScreen, address=address[0..12], out=screenOut);
+    Keyboard(out=kbdOut);
+    Mux16(a=screenOut, b=kbdOut, sel=address[13], out=screenKbdOut);
+    Mux16(a=ramOut, b=screenKbdOut, sel=address[14], out=out);
 }
