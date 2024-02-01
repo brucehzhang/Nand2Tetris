@@ -1,0 +1,14 @@
+/**
+ * Main class of the DodgeCars game.
+ */
+class Main {
+
+    /** Initializes a DodgeCars game and starts running it. */
+    function void main() {
+        var DodgeCarsGame game;
+        let game = DodgeCarsGame.new();
+        do game.run();
+        do game.dispose();
+        return;
+    }
+}

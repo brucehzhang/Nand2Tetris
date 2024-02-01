@@ -1,0 +1,108 @@
+/**
+ * Class for DodgeCars game, spawns cars that move vertically or horizontally while player attempts to dodge.
+ * Game over if the player gets hit by a car.
+ * Difficulties: 1 - Easy, 2 - Medium, 3 - Hard
+ */
+class DodgeCarsGame {
+    field Player player; // the player sprite
+    field Array cars; // Array of cars
+    field Car car;
+    field int index;
+    field boolean isHit;
+    field int direction;
+    static int carCount; // defaults to 6
+
+    /** Constructs a new game. */
+    constructor DodgeCarsGame new() {
+        let player = Player.new();
+        let carCount = 6;
+        let cars = Array.new(carCount);
+        let index = 0;
+        while (index < carCount) {
+            let cars[index] = Car.new(index * 3);
+            let index = index + 1;
+        }
+        return this;
+    }
+
+    /** Disposes this game. */
+    method void dispose() {
+        do player.dispose();
+        let index = 0;
+        while (index < carCount) {
+            let car = cars[index];
+            do car.dispose();
+            let index = index + 1;
+        }
+        do cars.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Moves the player up or down. */
+    method void movePlayer(int direction) {
+        if (direction = 1) { do player.moveUp(); }
+        if (direction = 2) { do player.moveDown(); }
+        return;
+    }
+
+    /** Moves the cars to the left. */
+    method boolean moveCars() {
+        let index = 0;
+        let isHit = false;
+        while (index < carCount & ~(isHit)) {
+            let car = cars[index];
+            if ((car.getXPosition() = 1) & (player.getYPosition() = car.getYPosition())) {
+                let isHit = true;
+            } else {
+                do car.moveLeft();   
+            }
+            let index = index + 1;
+        }
+        return isHit;
+    }
+
+    /** Runs the game: handles the user's inputs and moves the player according to input and cars automatically */
+    method void run() {
+        var char key;  // the key currently pressed by the user
+        var boolean exit;
+        let exit = false;
+        
+        while (~exit) {
+            let isHit = false;
+            while (~(isHit)) {
+                let key = Keyboard.keyPressed();
+                if (key = 131) { let direction = 1; }   // up arrow
+                if (key = 133) { let direction = 2; }   // down arrow
+                if (key = 0) { let direction = 0; }   // down arrow
+                do movePlayer(direction);
+                let isHit = moveCars();
+                do Sys.wait(25);  // delays the next movement
+            }
+
+            // Blank screen for game over
+            do Screen.clearScreen();
+
+            // Checks for exit or retry
+            while (~(key = 0)) {
+                let key = Keyboard.keyPressed();
+                if (key = 81) { 
+                    // Exit game
+                    let exit = true;
+                } else {
+                    // Reset cars for new game
+                    if (~(key = 0)) {
+                        let index = 0;
+                        while (index < carCount) {
+                            let car = cars[index];
+                            do car.dispose();
+                            let cars[index] = Car.new(index * 3);
+                            let index = index + 1;
+                        }
+                    }
+                }
+            }
+        }
+        return;
+    }
+}

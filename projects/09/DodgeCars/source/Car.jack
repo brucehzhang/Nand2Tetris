@@ -1,0 +1,96 @@
+/**
+ * Class for cars
+ */
+class Car {
+    
+    field int yPosition; // current y position (0-15)
+    field int xPosition; // current x position (0-31)
+
+    /** Constructs and draws a new square with a given location and size. */
+    constructor Car new(int yPosition) {
+        let yPosition = yPosition;
+        let xPosition = 31;
+        do draw(yPosition * 512 + xPosition);
+        return this;
+    }
+
+    /** Disposes the player object. */
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Draws the car in its current position (0-15 y axis, always at x = 0) */
+    method void draw(int location) {
+        var int memAddress;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, -32);
+        do Memory.poke(memAddress+32, -32736);
+        do Memory.poke(memAddress+64, -32736);
+        do Memory.poke(memAddress+96, -24800);
+        do Memory.poke(memAddress+128, -28384);
+        do Memory.poke(memAddress+160, -28384);
+        do Memory.poke(memAddress+192, -28377);
+        do Memory.poke(memAddress+224, -24795);
+        do Memory.poke(memAddress+256, -32705);
+        do Memory.poke(memAddress+288, -32767);
+        do Memory.poke(memAddress+320, -32767);
+        do Memory.poke(memAddress+352, -32767);
+        do Memory.poke(memAddress+384, -17287);
+        do Memory.poke(memAddress+416, -23479);
+        do Memory.poke(memAddress+448, -6193);
+        do Memory.poke(memAddress+480, 15480);
+        return;
+    }
+
+    /** Erases the car. */
+    method void erase(int location) {
+        var int memAddress;
+        let memAddress = 16384+location;
+        do Memory.poke(memAddress+0, 0);
+        do Memory.poke(memAddress+32, 0);
+        do Memory.poke(memAddress+64, 0);
+        do Memory.poke(memAddress+96, 0);
+        do Memory.poke(memAddress+128, 0);
+        do Memory.poke(memAddress+160, 0);
+        do Memory.poke(memAddress+192, 0);
+        do Memory.poke(memAddress+224, 0);
+        do Memory.poke(memAddress+256, 0);
+        do Memory.poke(memAddress+288, 0);
+        do Memory.poke(memAddress+320, 0);
+        do Memory.poke(memAddress+352, 0);
+        do Memory.poke(memAddress+384, 0);
+        do Memory.poke(memAddress+416, 0);
+        do Memory.poke(memAddress+448, 0);
+        do Memory.poke(memAddress+480, 0);
+        return;
+    }
+    
+    /** Gets the yPosition of the car, used to compare with Player yPosition to determine Game Over*/
+    method int getYPosition() {
+        return yPosition;
+    }
+
+    /** Gets the xPosition of the car, used to compare with Player yPosition to determine Game Over*/
+    method int getXPosition() {
+        return xPosition;
+    }
+
+    /** Moves the car left by 1 block until xPosition 0 is reached. If xPosition = 0, reset car with xPosition = 31 and yPosition = (yPosition + 3) % 16. */
+    method void moveLeft() {
+        if (xPosition > 1) {
+            do erase((yPosition * 512) + xPosition);
+            let xPosition = xPosition - 1;
+            do draw((yPosition * 512) + xPosition);
+        } else {
+            do erase((yPosition * 512) + xPosition);
+            let xPosition = 31;
+            let yPosition = yPosition + 3;
+            if (yPosition > 15) {
+                let yPosition = yPosition - 16;
+            }
+            do draw((yPosition * 512) + xPosition);
+        }
+        return;
+    }
+}
